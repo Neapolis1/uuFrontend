@@ -143,6 +143,21 @@ function ShoppingListDetail() {
     }
   };
 
+  // toggle archive/unarchive for an item (lokálně)
+  const onToggleItemArchived = (id) => {
+    setList(prev => {
+      const items = Array.isArray(prev.items)
+        ? prev.items.map(it => it.id === id ? { ...it, archived: !it.archived } : it)
+        : prev.items;
+      return { ...prev, items };
+    });
+    // pokud jsme editovali tu položku, zrušíme edit mód
+    if (editingItemId === id) {
+      setEditingItemId(null);
+      setEditingItemName("");
+    }
+  };
+
   const onOpenMembers = () => setShowMembers(true);
   const onCloseMembers = () => setShowMembers(false);
 
@@ -185,31 +200,31 @@ function ShoppingListDetail() {
     <div className="shopping-wrapper">
 
       {/* list selector */}
-      <div style={{ padding: 8 }}>
-        <label style={{ marginRight: 8 }}>Select list:</label>
-        <select value={selectedId ?? ""} onChange={(e) => setSelectedId(Number(e.target.value))}>
-          {lists.map(l => (
-            <option key={l.id} value={l.id}>
-              {l.name}{l.archived ? " (archived)" : ""}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* pokud uživatel nemá přístup k vybranému seznamu */}
+      {/* <div className="select-row">
+        <label className="select-label">Select list:</label>
+        <select className="select-input" value={selectedId ?? ""} onChange={(e) => setSelectedId(Number(e.target.value))}>
+           {lists.map(l => (
+             <option key={l.id} value={l.id}>
+               {l.name}{l.archived ? " (archived)" : ""}
+             </option>
+           ))}
+         </select>
+       </div> */}
+ 
+       {/* pokud uživatel nemá přístup k vybranému seznamu */}
       {!hasAccess ? (
-        <div style={{ padding: 20, color: "#b00" }}>
+        <div className="not-available">
           Tento obsah není dostupný.
         </div>
       ) : (
-        <>
-          {/* Header */}
-          <div className="shopping-header">
+         <>
+           {/* Header */}
+           <div className="shopping-header">
             {editingName ? (
               <input
+                className="header-input"
                 value={editableName}
                 onChange={(e) => setEditableName(e.target.value)}
-                style={{ fontSize: 24, padding: "6px 8px" }}
               />
             ) : (
               <h1>{list.name}</h1>
@@ -217,197 +232,169 @@ function ShoppingListDetail() {
 
             {/* show rename/archive only for owner and only when not archived */}
             {isOwner && !list.archived && (
-              <>
-                {!editingName ? (
-                  <button onClick={onStartRename}>RENAME LIST</button>
-                ) : (
-                  <>
-                    <button onClick={onSaveRename}>SAVE</button>
-                    <button onClick={onCancelRename}>CANCEL</button>
-                  </>
-                )}
-                <button onClick={onArchive}>ARCHIVE LIST</button>
-              </>
-            )}
-
-            <span className="owned">{ownerLabel}</span>
-          </div>
-
-          {/* pokud je seznam archivovaný, zobrazíme jen zprávu */}
-          {list.archived ? (
-            <div style={{ padding: "16px 20px", color: "#555" }}>
+               <>
+                 {!editingName ? (
+                   <button onClick={onStartRename}>RENAME LIST</button>
+                 ) : (
+                   <>
+                     <button onClick={onSaveRename}>SAVE</button>
+                     <button onClick={onCancelRename}>CANCEL</button>
+                   </>
+                 )}
+                 <button onClick={onArchive}>ARCHIVE LIST</button>
+               </>
+             )}
+ 
+             <span className="owned">{ownerLabel}</span>
+           </div>
+ 
+           {/* pokud je seznam archivovaný, zobrazíme jen zprávu */}
+           {list.archived ? (
+            <div className="modal-body" style={{ padding: "16px 20px", color: "#555" }}>
               Tento seznam je archivovaný.
             </div>
-          ) : (
-            <>
-              {/* Items */}
-              <div className="items-container">
+           ) : (
+             <>
+               {/* Items */}
+               <div className="items-container">
                 <div className="add-item-row">
                   <span className="add-icon">+</span>
                   {addingItem ? (
                     <>
                       <input
+                        className="add-input"
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
                         placeholder="New item name"
-                        style={{ padding: "6px 8px", flex: "1 0 auto", marginRight: 8 }}
                       />
-                      <button onClick={onSaveAddItem} disabled={!newItemName.trim()}>ADD</button>
-                      <button onClick={onCancelAddItem}>CANCEL</button>
+                      <div className="add-actions">
+                        <button onClick={onSaveAddItem} disabled={!newItemName.trim()}>ADD</button>
+                        <button onClick={onCancelAddItem}>CANCEL</button>
+                      </div>
                     </>
                   ) : (
-                    // zobrazíme tlačítko pro spuštění přidání pokud má uživatel přístup
                     hasAccess && <button className="add-item-btn" onClick={onStartAddItem}>ADD ITEM</button>
                   )}
                 </div>
-
-                {activeItems.map(item => (
-                  <div className="item-row" key={item.id}>
-                    <span className="item-checkbox"></span>
-
-                    {editingItemId === item.id ? (
-                      <>
-                        <input
-                          value={editingItemName}
-                          onChange={(e) => setEditingItemName(e.target.value)}
-                          style={{ padding: "6px 8px", flex: "1 0 auto", marginRight: 8 }}
-                        />
-                        <button onClick={onSaveEditItem} disabled={!editingItemName.trim()}>SAVE</button>
-                        <button onClick={onCancelEditItem}>CANCEL</button>
-                      </>
-                    ) : (
-                      <>
-                        <span className="item-name" style={{ flex: 1 }}>{item.name}</span>
-                        {/* edit/delete only if user has access and list is not archived */}
-                        {hasAccess && !list.archived && (
-                          <>
-                            <span className="item-edit" style={{ cursor: "pointer", opacity: 0.8, marginRight: 8 }} onClick={() => onStartEditItem(item)}>✎</span>
-                            <span className="item-delete" style={{ cursor: "pointer", opacity: 0.8 }} onClick={() => onDeleteItem(item.id)}>🗑</span>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
-
-                <div className="separator"></div>
-
+ 
+                 {activeItems.map(item => (
+                   <div className="item-row" key={item.id}>
+                     {/* checkbox toggluje archivaci */}
+                     <span
+                       className={`item-checkbox ${hasAccess ? 'clickable' : ''}`}
+                       onClick={() => hasAccess && onToggleItemArchived(item.id)}
+                       title={hasAccess ? "Archive item" : ""}
+                     />
+ 
+                     {editingItemId === item.id ? (
+                       <>
+                         <input
+                           className="add-input"
+                           value={editingItemName}
+                           onChange={(e) => setEditingItemName(e.target.value)}
+                         />
+                         <div className="add-actions">
+                           <button onClick={onSaveEditItem} disabled={!editingItemName.trim()}>SAVE</button>
+                           <button onClick={onCancelEditItem}>CANCEL</button>
+                         </div>
+                       </>
+                     ) : (
+                       <>
+                         <span className="item-name" style={{ flex: 1 }}>{item.name}</span>
+                         {/* edit/delete only if user has access and list is not archived */}
+                         {hasAccess && !list.archived && (
+                           <>
+                             <span className="item-edit" style={{ cursor: "pointer", opacity: 0.8, marginRight: 8 }} onClick={() => onStartEditItem(item)}>✎</span>
+                             <span className="item-delete" style={{ cursor: "pointer", opacity: 0.8 }} onClick={() => onDeleteItem(item.id)}>🗑</span>
+                           </>
+                         )}
+                       </>
+                     )}
+                   </div>
+                 ))}
+ 
+                 <div className="separator"></div>
+ 
                 {archivedItems.map(item => (
                   <div className="item-row archived" key={item.id}>
-                    <span className="item-checkbox disabled"></span>
+                    <span
+                      className={`item-checkbox disabled checked ${hasAccess ? 'clickable' : ''}`}
+                      onClick={() => hasAccess && onToggleItemArchived(item.id)}
+                      title={hasAccess ? "Unarchive item" : ""}
+                    />
+
                     <span className="item-name crossed">{item.name}</span>
-                    {/* disabled delete icon for archived items (no onClick) */}
-                    <span className="item-delete" style={{ opacity: 0.4, cursor: "default" }} onClick={() => onDeleteItem(item.id)}>🗑</span>
-                  </div>
+                    <span className="item-delete" style={{ opacity: 0.4, cursor: "pointer" }} onClick={() => onDeleteItem(item.id)}>🗑</span>
+                    </div>
                 ))}
-              </div>
-
-              {/* Bottom buttons */}
-              <div className="bottom-bar">
-                {isOwner ? (
-                  <button className="bottom-btn" onClick={onOpenAddMember}>ADD MEMBER</button>
-                ) : (
-                  <button className="bottom-btn" onClick={onLeave}>LEAVE</button>
-                )}
-                <button className="bottom-btn" onClick={onOpenMembers}>MEMBER LIST</button>
-              </div>
-            </>
-          )}
-        </>
-      )}
-
+               </div>
+ 
+               {/* Bottom buttons */}
+               <div className="bottom-bar">
+                 {isOwner ? (
+                   <button className="bottom-btn" onClick={onOpenAddMember}>ADD MEMBER</button>
+                 ) : (
+                   <button className="bottom-btn" onClick={onLeave}>LEAVE</button>
+                 )}
+                 <button className="bottom-btn" onClick={onOpenMembers}>MEMBER LIST</button>
+               </div>
+             </>
+           )}
+         </>
+       )}
+ 
       {/* Members modal */}
       {showMembers && (
-        <div
-          onClick={onCloseMembers}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: "white",
-              padding: 20,
-              borderRadius: 8,
-              width: 320,
-              maxWidth: "90%"
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div className="modal-backdrop" onClick={onCloseMembers}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
               <strong>Members</strong>
-              <button onClick={onCloseMembers} style={{ cursor: "pointer" }}>Close</button>
+              <button className="modal-close-btn" onClick={onCloseMembers}>Close</button>
             </div>
-
-            <div style={{ marginBottom: 8 }}>
-              <div><strong>Owner:</strong> {list.ownerId === currentUser.id ? `${currentUser.name} (you)` : getUserNameById(list.ownerId)}</div>
-            </div>
-
-            <div>
-              <div style={{ fontWeight: 600, marginBottom: 6 }}>Members:</div>
-              {Array.isArray(list.members) && list.members.length > 0 ? (
-                <ul style={{ paddingLeft: 20, marginTop: 0 }}>
-                  {list.members.map(mid => (
-                    <li key={mid}>{renderMemberLabel(mid)}</li>
-                  ))}
-                </ul>
-              ) : (
-                <div style={{ color: "#666" }}>No members</div>
-              )}
+            <div className="modal-body">
+              <div style={{ marginBottom: 8 }}>
+                <div><strong>Owner:</strong> {list.ownerId === currentUser.id ? `${currentUser.name} (you)` : getUserNameById(list.ownerId)}</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, marginBottom: 6 }}>Members:</div>
+                {Array.isArray(list.members) && list.members.length > 0 ? (
+                  <ul className="modal-list">
+                    {list.members.map(mid => (
+                      <li key={mid}>{renderMemberLabel(mid)}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div style={{ color: "#666" }}>No members</div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       )}
-
+ 
       {/* Add member modal (lokální změna, mock zůstává nezměněn) */}
       {showAddMember && (
-        <div
-          onClick={onCloseAddMember}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: "white",
-              padding: 20,
-              borderRadius: 8,
-              width: 360,
-              maxWidth: "90%"
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div className="modal-backdrop" onClick={onCloseAddMember}>
+          <div className="modal wide" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
               <strong>Add member</strong>
             </div>
-
-            <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "block", marginBottom: 8 }}>Select user to add:</label>
-              <select value={newMemberId} onChange={(e) => setNewMemberId(e.target.value)} style={{ width: "100%", padding: 8 }}>
-                {USERS
-                  .filter(u => u.id !== list.ownerId && !(list.members || []).includes(u.id))
-                  .map(u => (
-                    <option key={u.id} value={u.id}>{u.name}</option>
-                  ))
-                }
-              </select>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-              <button onClick={onCloseAddMember}>Cancel</button>
-              <button onClick={onConfirmAddMember} disabled={!newMemberId}>Add</button>
+            <div className="modal-body">
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: "block", marginBottom: 8 }}>Select user to add:</label>
+                <select className="select-input" value={newMemberId} onChange={(e) => setNewMemberId(e.target.value)}>
+                  {USERS
+                    .filter(u => u.id !== list.ownerId && !(list.members || []).includes(u.id))
+                    .map(u => (
+                      <option key={u.id} value={u.id}>{u.name}</option>
+                    ))
+                  }
+                </select>
+              </div>
+              <div className="add-actions">
+                <button onClick={onCloseAddMember}>Cancel</button>
+                <button onClick={onConfirmAddMember} disabled={!newMemberId}>Add</button>
+              </div>
             </div>
           </div>
         </div>

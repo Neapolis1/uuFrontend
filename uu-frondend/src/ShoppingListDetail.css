@@ -3,6 +3,7 @@
     display: inline-block;
     width: 72%;
     margin: 35px 0 0 35px;
+    box-sizing: border-box;
 }
 
 /* ----------------------- HEADER ----------------------- */
@@ -20,6 +21,14 @@
     font-weight: 500;
 }
 
+.header-input {
+    font-size: 24px;
+    padding: 6px 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+}
+
+/* buttons in header */
 .shopping-wrapper button {
     border: none;
     padding: 6px 10px;
@@ -36,6 +45,32 @@
     color: white;
     margin-right: 0;
     margin-left: auto;
+}
+
+/* ----------------------- LIST SELECT / MISC ----------------------- */
+
+.select-row {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.select-label {
+  margin-right: 8px;
+}
+
+.select-input {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  background: white;
+}
+
+/* not available text */
+.not-available {
+  padding: 20px;
+  color: #b00;
 }
 
 /* ----------------------- ADD ITEM ----------------------- */
@@ -59,6 +94,21 @@
   font-size: 14px;
 }
 
+.add-input {
+  padding: 6px 8px;
+  flex: 1 0 auto;
+  margin-right: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* add/cancel actions */
+.add-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 /* ----------------------- ITEMS LIST ----------------------- */
 
 .items-container {
@@ -76,10 +126,25 @@
   width: 18px;
   height: 18px;
   border: 2px solid #aaa;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  user-select: none;
+}
+
+.item-checkbox.clickable {
+  cursor: pointer;
+}
+
+.item-checkbox.checked::after {
+  content: "✓";
+  font-size: 12px;
+  color: #222;
 }
 
 .item-checkbox.disabled {
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .item-name {
@@ -89,19 +154,22 @@
 
 .item-name.crossed {
   text-decoration: line-through;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .item-edit,
 .item-delete {
   cursor: pointer;
   opacity: 0.7;
+  margin-left: 6px;
 }
 
+/* archived row */
 .archived {
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
+/* separator */
 .separator {
   border-bottom: 2px solid #757575;
   margin: 14px 0;
@@ -119,9 +187,64 @@
 }
 
 .bottom-btn {
-  background: #bfbfbf;
   border: none;
-  padding: 8px 18px;
+  background: #bdbdbd;
+  color: white;
+  padding: 8px 12px;
   cursor: pointer;
+  border-radius: 4px;
+}
+
+/* ----------------------- MODALS ----------------------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 320px;
+  max-width: 90%;
+  box-sizing: border-box;
+}
+
+.modal.wide {
+  width: 360px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.modal-close-btn {
+  cursor: pointer;
+  border: none;
+  background: transparent;
   font-size: 14px;
+}
+
+.modal-body {
+  color: #333;
+}
+
+.modal-list {
+  padding-left: 20px;
+  margin-top: 0;
+}
+
+/* responsive tweaks */
+@media (max-width: 600px) {
+  .shopping-wrapper { width: 100%; margin-left: 0; }
+  .header-input { width: 100%; }
 }
