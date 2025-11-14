@@ -8,6 +8,12 @@ const USERS = [
   { id: "456", name: "Chloe" },
 ];
 
+// helper pro získání jména podle id
+const getUserNameById = (id) => {
+  const u = USERS.find(u => u.id === id);
+  return u ? u.name : id;
+};
+
 // in pure react
 const UserContext = React.createContext();
 const useUserContext = () => React.useContext(UserContext);
@@ -54,4 +60,4 @@ function useUser() {
 * }
 * */
 
-export { UserProvider, UserSelector, useUser };
+export { UserProvider, UserSelector, useUser, USERS, getUserNameById };
