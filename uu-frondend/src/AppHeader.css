@@ -1,0 +1,15 @@
+.App-header {
+  background-color: #a7a9ae;
+  min-height: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: black;
+  padding: 0 20px;
+}
+
+.App-header h1 {
+  font-size: 38px;
+  margin: 0 0 0 10px;
+  font-weight: 500;
+}
