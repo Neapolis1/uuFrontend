@@ -13,6 +13,14 @@ function ShoppingListDetail() {
   const [editingName, setEditingName] = useState(false);
   const [editableName, setEditableName] = useState("");
 
+  // add item lokálně
+  const [addingItem, setAddingItem] = useState(false);
+  const [newItemName, setNewItemName] = useState("");
+
+  // per-item edit/delete
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [editingItemName, setEditingItemName] = useState("");
+
   // modal pro členy
   const [showMembers, setShowMembers] = useState(false);
   // modal pro přidání člena
@@ -22,7 +30,7 @@ function ShoppingListDetail() {
   useEffect(() => {
     const found = lists.find(l => l.id === selectedId) ?? null;
     // vytvoříme clone objektu, aby se neměnil originální mock
-    setList(found ? { ...found } : null);
+    setList(found ? { ...found, items: found.items ? [...found.items] : [] } : null);
   }, [lists, selectedId]);
 
   // synchronizace editableName s aktuálním seznamem
@@ -30,17 +38,25 @@ function ShoppingListDetail() {
     if (list) {
       setEditableName(list.name);
       setEditingName(false);
+      setAddingItem(false);
+      setNewItemName("");
+      setEditingItemId(null);
+      setEditingItemName("");
     } else {
       setEditableName("");
       setEditingName(false);
+      setAddingItem(false);
+      setNewItemName("");
+      setEditingItemId(null);
+      setEditingItemName("");
     }
   }, [list]);
 
   if (!currentUser) return <div className="shopping-wrapper">Loading…</div>;
   if (!list) return <div className="shopping-wrapper">Loading…</div>;
 
-  const activeItems = list.items.filter(i => !i.archived);
-  const archivedItems = list.items.filter(i => i.archived);
+  const activeItems = Array.isArray(list.items) ? list.items.filter(i => !i.archived) : [];
+  const archivedItems = Array.isArray(list.items) ? list.items.filter(i => i.archived) : [];
   const isOwner = currentUser && currentUser.id === list.ownerId;
   const isMember = Array.isArray(list.members) && list.members.includes(currentUser.id);
   const hasAccess = isOwner || isMember;
@@ -65,6 +81,66 @@ function ShoppingListDetail() {
   // archivace mění jen lokální stav komponenty (mock soubor zůstává nezměněn)
   const onArchive = () => {
     setList(prev => ({ ...prev, archived: true }));
+  };
+
+  // ADD ITEM - lokálně (stejně jako rename)
+  const onStartAddItem = () => {
+    setNewItemName("");
+    setAddingItem(true);
+  };
+
+  const onSaveAddItem = () => {
+    const name = (newItemName || "").trim();
+    if (!name) return;
+    setList(prev => {
+      const items = Array.isArray(prev.items) ? [...prev.items] : [];
+      // jednoduché id generování: max id + 1 (fallback to timestamp)
+      const maxId = items.reduce((m, it) => (it.id > m ? it.id : m), 0);
+      const nextId = maxId ? maxId + 1 : Date.now();
+      const newItem = { id: nextId, name, archived: false };
+      return { ...prev, items: [...items, newItem] };
+    });
+    setAddingItem(false);
+    setNewItemName("");
+  };
+
+  const onCancelAddItem = () => {
+    setAddingItem(false);
+    setNewItemName("");
+  };
+
+  // per-item edit handlers
+  const onStartEditItem = (item) => {
+    setEditingItemId(item.id);
+    setEditingItemName(item.name);
+  };
+
+  const onSaveEditItem = () => {
+    const name = (editingItemName || "").trim();
+    if (!name) return;
+    setList(prev => {
+      const items = Array.isArray(prev.items) ? prev.items.map(it => it.id === editingItemId ? { ...it, name } : it) : prev.items;
+      return { ...prev, items };
+    });
+    setEditingItemId(null);
+    setEditingItemName("");
+  };
+
+  const onCancelEditItem = () => {
+    setEditingItemId(null);
+    setEditingItemName("");
+  };
+
+  const onDeleteItem = (id) => {
+    setList(prev => {
+      const items = Array.isArray(prev.items) ? prev.items.filter(it => it.id !== id) : [];
+      return { ...prev, items };
+    });
+    // if we were editing this item, reset edit state
+    if (editingItemId === id) {
+      setEditingItemId(null);
+      setEditingItemName("");
+    }
   };
 
   const onOpenMembers = () => setShowMembers(true);
@@ -168,15 +244,49 @@ function ShoppingListDetail() {
               <div className="items-container">
                 <div className="add-item-row">
                   <span className="add-icon">+</span>
-                  <button className="add-item-btn">ADD ITEM</button>
+                  {addingItem ? (
+                    <>
+                      <input
+                        value={newItemName}
+                        onChange={(e) => setNewItemName(e.target.value)}
+                        placeholder="New item name"
+                        style={{ padding: "6px 8px", flex: "1 0 auto", marginRight: 8 }}
+                      />
+                      <button onClick={onSaveAddItem} disabled={!newItemName.trim()}>ADD</button>
+                      <button onClick={onCancelAddItem}>CANCEL</button>
+                    </>
+                  ) : (
+                    // zobrazíme tlačítko pro spuštění přidání pokud má uživatel přístup
+                    hasAccess && <button className="add-item-btn" onClick={onStartAddItem}>ADD ITEM</button>
+                  )}
                 </div>
 
                 {activeItems.map(item => (
                   <div className="item-row" key={item.id}>
                     <span className="item-checkbox"></span>
-                    <span className="item-name">{item.name}</span>
-                    <span className="item-edit">✎</span>
-                    <span className="item-delete">🗑</span>
+
+                    {editingItemId === item.id ? (
+                      <>
+                        <input
+                          value={editingItemName}
+                          onChange={(e) => setEditingItemName(e.target.value)}
+                          style={{ padding: "6px 8px", flex: "1 0 auto", marginRight: 8 }}
+                        />
+                        <button onClick={onSaveEditItem} disabled={!editingItemName.trim()}>SAVE</button>
+                        <button onClick={onCancelEditItem}>CANCEL</button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="item-name" style={{ flex: 1 }}>{item.name}</span>
+                        {/* edit/delete only if user has access and list is not archived */}
+                        {hasAccess && !list.archived && (
+                          <>
+                            <span className="item-edit" style={{ cursor: "pointer", opacity: 0.8, marginRight: 8 }} onClick={() => onStartEditItem(item)}>✎</span>
+                            <span className="item-delete" style={{ cursor: "pointer", opacity: 0.8 }} onClick={() => onDeleteItem(item.id)}>🗑</span>
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
                 ))}
 
@@ -186,7 +296,8 @@ function ShoppingListDetail() {
                   <div className="item-row archived" key={item.id}>
                     <span className="item-checkbox disabled"></span>
                     <span className="item-name crossed">{item.name}</span>
-                    <span className="item-delete">🗑</span>
+                    {/* disabled delete icon for archived items (no onClick) */}
+                    <span className="item-delete" style={{ opacity: 0.4, cursor: "default" }} onClick={() => onDeleteItem(item.id)}>🗑</span>
                   </div>
                 ))}
               </div>
