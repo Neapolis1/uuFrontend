@@ -179,6 +179,15 @@ function ShoppingListDetail() {
     setShowAddMember(false);
   };
 
+  // owner může lokálně odebrat člena
+  const onRemoveMember = (memberId) => {
+    if (!isOwner) return;
+    setList(prev => {
+      const members = Array.isArray(prev.members) ? prev.members.filter(m => m !== memberId) : [];
+      return { ...prev, members };
+    });
+  };
+
   // leave pro členy (lokálně) — odebere aktuálního uživatele z members
   const onLeave = () => {
     setList(prev => {
@@ -360,7 +369,13 @@ function ShoppingListDetail() {
                 {Array.isArray(list.members) && list.members.length > 0 ? (
                   <ul className="modal-list">
                     {list.members.map(mid => (
-                      <li key={mid}>{renderMemberLabel(mid)}</li>
+                      <li key={mid} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span>{renderMemberLabel(mid)}</span>
+                        {/* owner vidí Remove u členů (nemůže odstranit ownera) */}
+                        {isOwner && mid !== list.ownerId ? (
+                          <button onClick={() => onRemoveMember(mid)}>Remove</button>
+                        ) : null}
+                      </li>
                     ))}
                   </ul>
                 ) : (
