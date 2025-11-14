@@ -14,6 +14,7 @@ root.render(
         <UserSelector />
         <AppHeader />
         <NavBar />
+        <ShoppingListDetail />
     </UserProvider>
 );
 

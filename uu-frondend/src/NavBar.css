@@ -1,11 +1,12 @@
 .Nav-bar {
-    width: 30vh;
+    width: 20%;
     height: 100vh;
     background: #dfc19a;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     box-sizing: border-box;
+    float: left;
 }
 
 .Nav-bar button {
