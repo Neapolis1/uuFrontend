@@ -1,70 +1,50 @@
 .shopping-wrapper {
-    background: #e0e0e0;
-    display: inline-block;
-    width: 72%;
-    margin: 35px 0 0 35px;
-    box-sizing: border-box;
+  background: #ead3b5;
+  display: inline-block;
+  width: 72%;
+  margin: 35px 0 0 35px;
+  box-sizing: border-box;
 }
 
 /* ----------------------- HEADER ----------------------- */
 
 .shopping-header {
-    background: #d4d4d4;
-    padding: 16px;
-    display: flex;
-    align-items: center;
+  background: #dfc19a;
+  padding: 16px;
+  display: flex;
+  align-items: center;
 }
 
 .shopping-header h1 {
-    margin: 0;
-    font-size: 32px;
-    font-weight: 500;
+  margin: 0;
+  font-size: 32px;
+  font-weight: 500;
 }
 
 .header-input {
-    font-size: 24px;
-    padding: 6px 8px;
-    border: 1px solid #bbb;
-    border-radius: 4px;
+  font-size: 24px;
+  padding: 6px 8px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
 }
 
-/* buttons in header */
 .shopping-wrapper button {
-    border: none;
-    padding: 6px 10px;
-    display: flex;
-    font-size: 14px;
-    cursor: pointer;
-    background: #c2c2c2;
-    color: white;
-    margin: 0 12px;
+  border: none;
+  padding: 6px 10px;
+  display: flex;
+  font-size: 14px;
+  cursor: pointer;
+  background: #cea583;
+  color: white;
+  margin: 0 12px;
+  border-radius: 4px
 }
 
 .owned {
-    font-weight: bold;
-    color: white;
-    margin-right: 0;
-    margin-left: auto;
-}
-
-/* ----------------------- LIST SELECT / MISC ----------------------- */
-
-.select-row {
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.select-label {
-  margin-right: 8px;
-}
-
-.select-input {
-  padding: 6px 8px;
-  border-radius: 4px;
-  border: 1px solid #bbb;
-  background: white;
+  font-weight: bold;
+  color: white;
+  margin-right: 0;
+  margin-left: auto;
 }
 
 /* not available text */
@@ -82,8 +62,10 @@
 
 .add-icon {
   font-size: 50px;
-  color: #a3a3a3;
+  color: #d9b88c;
   font-weight: 600;
+  position: relative;
+  top: -6px;
 }
 
 .add-item-btn {
@@ -100,9 +82,9 @@
   margin-right: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  margin-left: 7px;
 }
 
-/* add/cancel actions */
 .add-actions {
   display: flex;
   justify-content: flex-end;
@@ -123,24 +105,21 @@
 }
 
 .item-checkbox {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #aaa;
+  width: 20px;
+  height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 2px;
   user-select: none;
-}
-
-.item-checkbox.clickable {
   cursor: pointer;
+  background: #cea583;
 }
 
 .item-checkbox.checked::after {
   content: "✓";
-  font-size: 12px;
-  color: #222;
+  font-size: 26px;
+  color: #000000;
 }
 
 .item-checkbox.disabled {
@@ -148,7 +127,6 @@
 }
 
 .item-name {
-  flex: 1;
   font-size: 16px;
 }
 
@@ -161,38 +139,26 @@
 .item-delete {
   cursor: pointer;
   opacity: 0.7;
-  margin-left: 6px;
+  font-size: 18px;
 }
 
-/* archived row */
 .archived {
   opacity: 0.6;
 }
 
-/* separator */
 .separator {
-  border-bottom: 2px solid #757575;
+  border-bottom: 2px solid #825f31;
   margin: 14px 0;
 }
 
 /* ----------------------- BOTTOM BAR ----------------------- */
 
 .bottom-bar {
-  background: #d1d1d1;
-  padding: 16px;
+  background: #dfc19a;
+  padding: 8px;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.bottom-btn {
-  border: none;
-  background: #bdbdbd;
-  color: white;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 4px;
+  margin-top: 16px;
 }
 
 /* ----------------------- MODALS ----------------------- */
@@ -208,7 +174,7 @@
 }
 
 .modal {
-  background: white;
+  background: #efe1d0;
   padding: 20px;
   border-radius: 8px;
   width: 320px;

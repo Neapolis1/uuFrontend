@@ -239,7 +239,7 @@ function ShoppingListDetail() {
  
            {/* message when is list is archived */}
            {list.archived ? (
-            <div className="modal-body" style={{ padding: "16px 20px", color: "#555" }}>
+            <div style={{ padding: "16px 20px", color: "#555" }}>
               Tento seznam je archivovaný.
             </div>
            ) : (
@@ -269,7 +269,7 @@ function ShoppingListDetail() {
                  {activeItems.map(item => (
                    <div className="item-row" key={item.id}>
                      <span
-                       className={`item-checkbox ${hasAccess ? 'clickable' : ''}`}
+                       className={`item-checkbox`}
                        onClick={() => hasAccess && onToggleItemArchived(item.id)}
                        title={hasAccess ? "Archive item" : ""}
                      />
@@ -288,11 +288,11 @@ function ShoppingListDetail() {
                        </>
                      ) : (
                        <>
-                         <span className="item-name" style={{ flex: 1 }}>{item.name}</span>
+                         <span className="item-name">{item.name}</span>
                          {hasAccess && !list.archived && (
                            <>
-                             <span className="item-edit" style={{ cursor: "pointer", opacity: 0.8, marginRight: 8 }} onClick={() => onStartEditItem(item)}>✎</span>
-                             <span className="item-delete" style={{ cursor: "pointer", opacity: 0.8 }} onClick={() => onDeleteItem(item.id)}>🗑</span>
+                             <span className="item-edit" onClick={() => onStartEditItem(item)}>✎</span>
+                             <span className="item-delete" onClick={() => onDeleteItem(item.id)}>🗑</span>
                            </>
                          )}
                        </>
@@ -305,13 +305,13 @@ function ShoppingListDetail() {
                 {archivedItems.map(item => (
                   <div className="item-row archived" key={item.id}>
                     <span
-                      className={`item-checkbox disabled checked ${hasAccess ? 'clickable' : ''}`}
+                      className={`item-checkbox disabled checked`}
                       onClick={() => hasAccess && onToggleItemArchived(item.id)}
                       title={hasAccess ? "Unarchive item" : ""}
                     />
 
                     <span className="item-name crossed">{item.name}</span>
-                    <span className="item-delete" style={{ opacity: 0.4, cursor: "pointer" }} onClick={() => onDeleteItem(item.id)}>🗑</span>
+                    <span className="item-delete" onClick={() => onDeleteItem(item.id)}>🗑</span>
                     </div>
                 ))}
                </div>
@@ -319,11 +319,11 @@ function ShoppingListDetail() {
                {/* Bottom buttons */}
                <div className="bottom-bar">
                  {isOwner ? (
-                   <button className="bottom-btn" onClick={onOpenAddMember}>ADD MEMBER</button>
+                   <button onClick={onOpenAddMember}>ADD MEMBER</button>
                  ) : (
-                   <button className="bottom-btn" onClick={onLeave}>LEAVE</button>
+                   <button onClick={onLeave}>LEAVE</button>
                  )}
-                 <button className="bottom-btn" onClick={onOpenMembers}>MEMBER LIST</button>
+                 <button onClick={onOpenMembers}>MEMBER LIST</button>
                </div>
              </>
            )}
