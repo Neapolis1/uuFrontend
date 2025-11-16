@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./ShoppingListDetail.css";
 import shoppingListsMock from "./mock-data.js";
-import { useUser, getUserNameById, USERS } from "./user";
+import { useUser, getUserNameById, USERS } from "./user.js";
 
 function ShoppingListDetail() {
   const currentUser = useUser();
