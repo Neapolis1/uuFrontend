@@ -243,8 +243,7 @@
   margin-top: 0;
 }
 
-/* responsive tweaks */
-@media (max-width: 600px) {
+/* @media (max-width: 600px) {
   .shopping-wrapper { width: 100%; margin-left: 0; }
   .header-input { width: 100%; }
-}
+} */

@@ -9,31 +9,24 @@ function ShoppingListDetail() {
   const [selectedId, setSelectedId] = useState(lists[0]?.id ?? null);
   const [list, setList] = useState(null);
 
-  // lokalní stavy pro editaci názvu
   const [editingName, setEditingName] = useState(false);
   const [editableName, setEditableName] = useState("");
 
-  // add item lokálně
   const [addingItem, setAddingItem] = useState(false);
   const [newItemName, setNewItemName] = useState("");
 
-  // per-item edit/delete
   const [editingItemId, setEditingItemId] = useState(null);
   const [editingItemName, setEditingItemName] = useState("");
 
-  // modal pro členy
   const [showMembers, setShowMembers] = useState(false);
-  // modal pro přidání člena
   const [showAddMember, setShowAddMember] = useState(false);
   const [newMemberId, setNewMemberId] = useState("");
 
   useEffect(() => {
     const found = lists.find(l => l.id === selectedId) ?? null;
-    // vytvoříme clone objektu, aby se neměnil originální mock
     setList(found ? { ...found, items: found.items ? [...found.items] : [] } : null);
   }, [lists, selectedId]);
 
-  // synchronizace editableName s aktuálním seznamem
   useEffect(() => {
     if (list) {
       setEditableName(list.name);
@@ -68,7 +61,6 @@ function ShoppingListDetail() {
   };
 
   const onSaveRename = () => {
-    // změna pouze lokálně v komponentě
     setList(prev => ({ ...prev, name: editableName }));
     setEditingName(false);
   };
@@ -78,12 +70,11 @@ function ShoppingListDetail() {
     setEditingName(false);
   };
 
-  // archivace mění jen lokální stav komponenty (mock soubor zůstává nezměněn)
   const onArchive = () => {
     setList(prev => ({ ...prev, archived: true }));
   };
 
-  // ADD ITEM - lokálně (stejně jako rename)
+  // ADD ITEM 
   const onStartAddItem = () => {
     setNewItemName("");
     setAddingItem(true);
@@ -94,7 +85,6 @@ function ShoppingListDetail() {
     if (!name) return;
     setList(prev => {
       const items = Array.isArray(prev.items) ? [...prev.items] : [];
-      // jednoduché id generování: max id + 1 (fallback to timestamp)
       const maxId = items.reduce((m, it) => (it.id > m ? it.id : m), 0);
       const nextId = maxId ? maxId + 1 : Date.now();
       const newItem = { id: nextId, name, archived: false };
@@ -109,7 +99,6 @@ function ShoppingListDetail() {
     setNewItemName("");
   };
 
-  // per-item edit handlers
   const onStartEditItem = (item) => {
     setEditingItemId(item.id);
     setEditingItemName(item.name);
@@ -136,14 +125,13 @@ function ShoppingListDetail() {
       const items = Array.isArray(prev.items) ? prev.items.filter(it => it.id !== id) : [];
       return { ...prev, items };
     });
-    // if we were editing this item, reset edit state
     if (editingItemId === id) {
       setEditingItemId(null);
       setEditingItemName("");
     }
   };
 
-  // toggle archive/unarchive for an item (lokálně)
+  // toggle archive/unarchive for an item 
   const onToggleItemArchived = (id) => {
     setList(prev => {
       const items = Array.isArray(prev.items)
@@ -151,18 +139,13 @@ function ShoppingListDetail() {
         : prev.items;
       return { ...prev, items };
     });
-    // pokud jsme editovali tu položku, zrušíme edit mód
-    if (editingItemId === id) {
-      setEditingItemId(null);
-      setEditingItemName("");
-    }
   };
 
   const onOpenMembers = () => setShowMembers(true);
   const onCloseMembers = () => setShowMembers(false);
 
+  // add member
   const onOpenAddMember = () => {
-    // před otevřením nastavíme defaultní hodnotu selectu
     const available = USERS.filter(u => u.id !== list.ownerId && !(list.members || []).includes(u.id));
     setNewMemberId(available[0]?.id ?? "");
     setShowAddMember(true);
@@ -179,7 +162,7 @@ function ShoppingListDetail() {
     setShowAddMember(false);
   };
 
-  // owner může lokálně odebrat člena
+  // remove member (only for owner)
   const onRemoveMember = (memberId) => {
     if (!isOwner) return;
     setList(prev => {
@@ -188,20 +171,17 @@ function ShoppingListDetail() {
     });
   };
 
-  // leave pro členy (lokálně) — odebere aktuálního uživatele z members
+  // leave list (for members)
   const onLeave = () => {
     setList(prev => {
       const members = Array.isArray(prev.members) ? prev.members.filter(m => m !== currentUser.id) : [];
       return { ...prev, members };
     });
-    // zavřeme modal members pokud byl otevřený
-    setShowMembers(false);
   };
 
   const renderMemberLabel = (id) => {
     if (!id) return id;
     if (id === currentUser.id) return `${currentUser.name} (you)`;
-    // použijeme lookup pro jméno
     return getUserNameById(id);
   };
 
@@ -220,7 +200,7 @@ function ShoppingListDetail() {
          </select>
        </div> */}
  
-       {/* pokud uživatel nemá přístup k vybranému seznamu */}
+       {/* if user dont have permision to this list */}
       {!hasAccess ? (
         <div className="not-available">
           Tento obsah není dostupný.
@@ -239,7 +219,7 @@ function ShoppingListDetail() {
               <h1>{list.name}</h1>
             )}
 
-            {/* show rename/archive only for owner and only when not archived */}
+            {/* show rename/archive only for owner */}
             {isOwner && !list.archived && (
                <>
                  {!editingName ? (
@@ -257,7 +237,7 @@ function ShoppingListDetail() {
              <span className="owned">{ownerLabel}</span>
            </div>
  
-           {/* pokud je seznam archivovaný, zobrazíme jen zprávu */}
+           {/* message when is list is archived */}
            {list.archived ? (
             <div className="modal-body" style={{ padding: "16px 20px", color: "#555" }}>
               Tento seznam je archivovaný.
@@ -288,7 +268,6 @@ function ShoppingListDetail() {
  
                  {activeItems.map(item => (
                    <div className="item-row" key={item.id}>
-                     {/* checkbox toggluje archivaci */}
                      <span
                        className={`item-checkbox ${hasAccess ? 'clickable' : ''}`}
                        onClick={() => hasAccess && onToggleItemArchived(item.id)}
@@ -310,7 +289,6 @@ function ShoppingListDetail() {
                      ) : (
                        <>
                          <span className="item-name" style={{ flex: 1 }}>{item.name}</span>
-                         {/* edit/delete only if user has access and list is not archived */}
                          {hasAccess && !list.archived && (
                            <>
                              <span className="item-edit" style={{ cursor: "pointer", opacity: 0.8, marginRight: 8 }} onClick={() => onStartEditItem(item)}>✎</span>
@@ -371,7 +349,6 @@ function ShoppingListDetail() {
                     {list.members.map(mid => (
                       <li key={mid} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span>{renderMemberLabel(mid)}</span>
-                        {/* owner vidí Remove u členů (nemůže odstranit ownera) */}
                         {isOwner && mid !== list.ownerId ? (
                           <button onClick={() => onRemoveMember(mid)}>Remove</button>
                         ) : null}
@@ -387,7 +364,6 @@ function ShoppingListDetail() {
         </div>
       )}
  
-      {/* Add member modal (lokální změna, mock zůstává nezměněn) */}
       {showAddMember && (
         <div className="modal-backdrop" onClick={onCloseAddMember}>
           <div className="modal wide" onClick={(e) => e.stopPropagation()}>
